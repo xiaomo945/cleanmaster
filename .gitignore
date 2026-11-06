@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+build/
+build_test/
+build_log*.txt
+dist/*_old.exe
+dist/*.rar
+_ui_dump.txt
+shot_*.png
+cleanmaster_crash.log
+*.spec.bak
