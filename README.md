@@ -1,7 +1,7 @@
 # 电脑清理大师 (PC Cleanup Master)
 
 作者：**xiaomo945** · https://github.com/xiaomo945
-仓库：**https://github.com/xiaomo945/pc-clean-master** · 不想装 Python 就直接下载 `dist/电脑清理大师.exe` 双击运行
+仓库：**https://github.com/xiaomo945/cleanmaster** · 不想装 Python 就直接下载 `dist/电脑清理大师.exe` 双击运行
 
 一个零依赖（仅用 Python 标准库 + Tkinter）的 Windows 电脑清理工具，纯图形界面，全程点击操作。
 
