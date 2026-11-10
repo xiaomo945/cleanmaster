@@ -429,3 +429,20 @@ pyinstaller --onefile --windowed --name "电脑清理大师" clean_master.py
 - **建议以管理员身份运行**：才能清理注册表(HKLM)和部分系统目录；普通模式也能清临时文件/回收站/浏览器缓存/全盘文件类目。
 - 工具只清理公认的系统垃圾与用户数据区里识别出的可删除文件，**不会动你的文档、照片、桌面文件**（除非你自己在「大文件/旧文件」里手动勾选了它们）。
 - 清理不可逆，重要文件请提前备份；逐文件勾选时请看清路径再决定。
+
+---
+
+## 开发 / 推送到 GitHub
+
+本仓库用 `_push_gh.py` 同步——代理或沙箱拦住 git 协议时也能推：
+
+```bash
+py -3 _push_gh.py                              # 增量同步
+CM_GH_MSG="fix: 修正说明" py -3 _push_gh.py    # 自定义提交信息
+```
+
+需要先装并登录 [GitHub CLI](https://cli.github.com/)（`gh auth login`，需 `repo` 权限）。
+默认目标 `xiaomo945/cleanmaster`，可用 `CM_GH_OWNER` / `CM_GH_REPO` / `CM_GH_BRANCH` 覆盖。
+
+脚本逐个文件计算 Git blob sha1 与远端比对：**内容没变就不上传**，所以改一行说明
+不会重传 11MB 的 EXE；本地清单里删掉的文件会在远端一并移除；完全无改动时不造空提交。
