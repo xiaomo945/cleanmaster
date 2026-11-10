@@ -1,7 +1,15 @@
 # 电脑清理大师 (PC Cleanup Master)
 
 作者：**xiaomo945** · https://github.com/xiaomo945
-仓库：**https://github.com/xiaomo945/cleanmaster** · 不想装 Python 就直接下载 `dist/电脑清理大师.exe` 双击运行
+仓库：**https://github.com/xiaomo945/cleanmaster**
+
+> **下载就能用 · v3.0.2 绿色版**
+> [下载 zip（10.6 MB）](https://github.com/xiaomo945/cleanmaster/releases/latest/download/CleanMaster_v3.0.2_win64.zip)
+> → 右键「全部提取」→ 双击 `电脑清理大师.exe`。
+> **不用装 Python、不用装运行库、不用安装、不写注册表**，Windows 10 / 11 64 位直接跑。
+> 不想解压可以下[单文件 EXE](https://github.com/xiaomo945/cleanmaster/releases/latest/download/CleanMaster_v3.0.2.exe)；
+> 更新日志见 [Releases 页面](https://github.com/xiaomo945/cleanmaster/releases/latest)。
+> 压缩包内附《使用说明.txt》：SmartScreen / 杀软误报怎么办、操作步骤、安全须知、SHA256 校验值。
 
 一个零依赖（仅用 Python 标准库 + Tkinter）的 Windows 电脑清理工具，纯图形界面，全程点击操作。
 
@@ -374,18 +382,31 @@ v2.8 的做法：
 
 ## 使用方法
 
-### 方式一：直接运行（需装 Python）
+### 方式一：下载绿色版（推荐 · 发给朋友用）
+
+到 [Releases 页面](https://github.com/xiaomo945/cleanmaster/releases/latest) 下载
+`CleanMaster_v3.0.2_win64.zip`：
+
+1. 右键 zip → 「全部提取」（**不要直接在压缩包里双击 exe**，会启动失败）
+2. 双击解压出来的 `电脑清理大师.exe`
+3. 首次运行若弹出蓝色「Windows 已保护你的电脑」→ 点「更多信息」→「仍要运行」；
+   杀毒软件误报请添加信任（PyInstaller 单文件程序常见）
+
+压缩包里只有两个文件：EXE 和《使用说明.txt》。
+只想双击、不想解压的人，下载[单文件 EXE](https://github.com/xiaomo945/cleanmaster/releases/latest/download/CleanMaster_v3.0.2.exe) 即可。
+
+### 方式二：直接运行源码（需装 Python）
 右键「以管理员身份运行」打开 PowerShell，进入本目录：
 ```powershell
 python clean_master.py
 ```
 
-### 方式二：打包成单文件 exe（推荐分发）
+### 方式三：自己打包 EXE（开发者）
 ```powershell
 pip install pyinstaller
 pyinstaller --onefile --windowed --name "电脑清理大师" clean_master.py
 ```
-生成 `电脑清理大师.exe` 在 `dist\`，双击即用，**发给朋友也能直接跑**。
+生成 `电脑清理大师.exe` 在 `dist\`，双击即用。想做成「别人下载解压就能用」的分发包，见文末「制作分发包 / 发新版」。
 
 > ⚠ **不要加 `--uac-admin`**（v2.7.1 起已去掉）。加了之后每次双击都强制弹 UAC 提权窗，
 > 被安全软件拦掉或用户点「否」时，就表现为「双击没反应 / 闪退」—— 其实程序本身完全正常。
@@ -446,3 +467,29 @@ CM_GH_MSG="fix: 修正说明" py -3 _push_gh.py    # 自定义提交信息
 
 脚本逐个文件计算 Git blob sha1 与远端比对：**内容没变就不上传**，所以改一行说明
 不会重传 11MB 的 EXE；本地清单里删掉的文件会在远端一并移除；完全无改动时不造空提交。
+
+---
+
+### 制作分发包 / 发新版
+
+```bash
+py -3 _make_release.py
+```
+
+自动从 `clean_master.py` 读版本号、算 EXE 的 SHA256，生成
+`release/CleanMaster_v<版本>_win64.zip`：里面是 `电脑清理大师.exe` +《使用说明.txt》，
+并自校验中文文件名、说明编码（UTF-8 BOM）、EXE 逐字节一致。
+
+```bash
+cp "dist/电脑清理大师.exe" "release/CleanMaster_v3.0.2.exe"
+gh release create v3.0.2 -R xiaomo945/cleanmaster --target main \
+  --title "电脑清理大师 v3.0.2 · 绿色版（下载解压即用）" \
+  --notes-file release/RELEASE_NOTES_v3.0.2.md \
+  release/CleanMaster_v3.0.2_win64.zip release/CleanMaster_v3.0.2.exe
+```
+
+发给别人一律用 `https://github.com/xiaomo945/cleanmaster/releases/latest/download/<资产名>`
+这种稳定直链，以后发新版链接不用改。
+
+> 坑：gh CLI 上传**中文文件名**的资产会被存成 `default.exe`，所以单文件 EXE
+> 要先复制成英文名再传；zip 内部是中文文件名，不受影响。

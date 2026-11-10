@@ -38,6 +38,7 @@ BASE = [
     "电脑清理大师.spec",
     "dist/电脑清理大师.exe",
     "_push_gh.py",          # 本脚本也进仓库，换电脑 / 协作者才拿得到推送工具
+    "_make_release.py",     # 一键生成「下载解压就能用」的绿色版 zip
 ]
 TESTS = sorted(f for f in os.listdir(ROOT)
                if f.startswith("_test_") and f.endswith(".py"))

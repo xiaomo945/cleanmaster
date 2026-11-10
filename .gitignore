@@ -9,3 +9,4 @@ _ui_dump.txt
 shot_*.png
 cleanmaster_crash.log
 *.spec.bak
+release/
