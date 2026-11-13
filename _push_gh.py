@@ -34,8 +34,6 @@ BASE = [
     ".gitignore",
     "README.md",
     "clean_master.py",
-    "build.ps1",
-    "电脑清理大师.spec",
     "dist/电脑清理大师.exe",
     "_push_gh.py",          # 本脚本也进仓库，换电脑 / 协作者才拿得到推送工具
     "_make_release.py",     # 一键生成「下载解压就能用」的绿色版 zip
@@ -157,7 +155,6 @@ def main():
         existing = {x["path"]: x["sha"] for x in rt.get("tree", [])
                     if x["type"] == "blob"}
     repo_paths = {f.replace("\\", "/") for f in FILES}
-    removed = sorted(set(existing) - repo_paths)
 
     tree, changed, local_sha = [], [], {}
     for rel in FILES:
@@ -178,10 +175,19 @@ def main():
         changed.append(rp)
         print("  上传 %-40s %8.2f KB" % (rp, len(raw) / 1024), flush=True)
 
-    print("变更：新增/修改 %d 个，删除 %d 个，复用 %d 个（未重传）" %
-          (len(changed), len(removed), len(FILES) - len(changed)))
-    if not changed and not removed:
-        print("本地与远端逐字节一致，无需提交（不造空提交）。")
+    # 保留远端已有的历史文件（本地已清理的旧版 EXE、旧测试脚本等）：
+    # 远端仓库视为不可变完整历史，本地只保留最新，绝不因本地清理而删除远端。
+    kept_history = 0
+    for rp, sha in existing.items():
+        if rp not in repo_paths:
+            tree.append({"path": rp, "mode": "100644", "type": "blob", "sha": sha})
+            kept_history += 1
+    removed = []  # 远端历史不可变
+
+    print("变更：新增/修改 %d 个，远端保留历史 %d 个，复用 %d 个（未重传）" %
+          (len(changed), kept_history, len(FILES) - len(changed)))
+    if not changed:
+        print("本地清单文件与远端逐字节一致，无需提交（不造空提交）。")
         print("仓库地址: https://github.com/%s/%s" % (OWNER, REPO))
         return 0
 
@@ -206,11 +212,10 @@ def main():
             (OWNER, REPO, branch), timeout=120)
     remote = {x["path"]: x["sha"] for x in v.get("tree", [])
               if x["type"] == "blob"}
-    ok = remote == local_sha
-    print("\n远端文件 %d 个，本地 %d 个，内容逐字节一致：%s" %
-          (len(remote), len(local_sha), ok))
-    for p in sorted(remote):
-        print("  ", p)
+    ok = all(remote.get(p) == local_sha[p] for p in local_sha)
+    print("\n远端共 %d 个文件（含 %d 个本地已清理的历史文件），本地清单 %d 个，" %
+          (len(remote), len(remote) - len(local_sha), len(local_sha)))
+    print("本地清单文件与远端逐项一致：%s" % ok)
     print("仓库地址: https://github.com/%s/%s" % (OWNER, REPO))
     return 0 if ok else 1
 
